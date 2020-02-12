@@ -1,5 +1,5 @@
 {
-    "name": "winston-azure-loganalytics"
+    "name": "winston-azure-loganalytics",
     "description": "Microsoft Azure LogAnalystics implementations for winston@3 and up.",
     "version": "0.0.1",
     "private": true,
