@@ -1,19 +1,12 @@
 {
     "name": "winston-azure-loganalytics"
     "description": "Microsoft Azure LogAnalystics implementations for winston@3 and up.",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "private": true,
     "author": {
         "name": "Sebastian",
         "email": "seba@cloudnative.co.jp"
     },
-    "keywords": [
-        "winston",
-        "transport",
-        "winston3",
-        "azure",
-        "log analystics",
-    ],
     "main": "index.js",
     "dependencies": {
         "winston-transport": "^4.3.0",
