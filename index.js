@@ -1,19 +1,27 @@
 const Transport = require('winston-transport')
-const { LEVEL, MESSAGE } = require('triple-beam');
 const LogAnalytics  = require('loganalytics');
 
 
 class LogAnalyticsTransport extends Transport {
-    constructor (options, workspaceId, sharedKey, logType, timeGeneratedField="TimeGenerated [UTC]", apiVersion = '2016-04-01', timeout=1000) {
+    constructor (options) {
         super(options)
-        this._logType = logType;
-        this._timeGeneratedField = timeGeneratedField;
-        this._loganalystics = new LogAnalytics(workspaceId, sharedKey, apiVersion)
-        this._timeout = timeout;
+        this._apiVersion = options.apiVersion || "2016-04-01";
+        this._timeGeneratedField = options.timeGeneratedField || "TimeGenerated [UTC]";
+        this._timeout = options.timeout || 1000;
+        this._logType = options.logType;
+        this._loganalystics = new LogAnalytics(
+            options.workspaceID,
+            options.sharedKey,
+            this._apiVersion
+        )
     }
     log (info, callback) {
-        var message = JSON.parse(info[MESSAGE])
-        message[this._timeGeneratedField] = new Date().toISOString();
+        callback = callback || function(){};
+        if (this.silent) {
+            return callback(null, true);
+        }
+        var message = JSON.parse(info.message)
+        message[this._timeGeneratedField] = info.timestamp;
         setTimeout(() => {
             this._loganalystics.postLog(
                 message,
@@ -21,15 +29,15 @@ class LogAnalyticsTransport extends Transport {
                 this._timeGeneratedField
             )
             .then(result => {
-                this.last_result = result;
-                callback(null);
+                this.emit('logged', info);
             })
             .catch(err => {
-                console.error(err);
-                this.last_result = err;
+                this.emit('warn', err);
             })
-        }, this._timeout);
+            .finally(() => {
+                setImmediate(callback);
+            })
+        }  , this._timeout);
     }
-
 }
 module.exports = LogAnalyticsTransport
